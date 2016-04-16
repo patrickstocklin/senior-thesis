@@ -25,6 +25,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     sudo apt-get update
     sudo apt-get -y install libgtk2.0-0
+    cd scripts
     wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
     touch createEnvironment.sh
     chmod 777 createEnvironment.sh
@@ -33,7 +34,10 @@ Vagrant.configure(2) do |config|
     echo "conda create --name Canny biopython" >> createEnvironment.sh
     echo "conda install -c menpo opencv" >> createEnvironment.sh
     echo "conda install --name Canny -c menpo opencv" >> createEnvironment.sh
-
+    echo "conda install --c menpo matplotlib" >> createEnvironment.sh
+    echo "conda install --name Canny -c menpo matplotlib"
+    cd 
+	
       #Get library/package sharer or some crap
     #sudo apt-get -y install libgtk2.0-0
       #Install conda
