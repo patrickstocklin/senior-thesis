@@ -1,5 +1,5 @@
 # Mn Contrast Agent Image Processor
 
 
-![System Design](file:///home/pat/Documents/PhysicsThesis/SystemDesign.png)
+![System Design](https://imgur.com/fyjV4n1, "Design")
 
