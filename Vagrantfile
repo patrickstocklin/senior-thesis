@@ -36,6 +36,8 @@ Vagrant.configure(2) do |config|
     echo "conda install --name Canny -c menpo opencv" >> createEnvironment.sh
     echo "conda install --c menpo matplotlib" >> createEnvironment.sh
     echo "conda install --name Canny -c menpo matplotlib"
+    echo "conda install -c menpo PIL" >> createEnvironment.sh
+    echo "conda install --name Canny -c menpo PIL" >> createEnvironment.sh
     cd 
 	
       #Get library/package sharer or some crap
