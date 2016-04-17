@@ -50,8 +50,8 @@ if __name__ == "__main__":
 				cv2.imwrite(dest + '/' + fname, image)	
 				for parameter in THRESHOLDS:
 					edge = cv2.Canny(image, parameter[0], parameter[1])
-					cv2.imwrite(dest + '/' + 'edge' + str(parameter[0]) + \
-						',' + str(parameter[1]) + fname, edge)
+					cv2.imwrite(dest + '/' + 'edge(' + str(parameter[0]) + \
+						',' + str(parameter[1]) + ')' + fname, edge)
 							
 	
 	print ("Canny Edge Detection completed!")
