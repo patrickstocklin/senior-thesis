@@ -31,6 +31,8 @@ class concentration(object):
 		self.score = 0.0
 
 	def calculateScore(self):
+		SLICE_SIZE = 150
+
 		print ("Calculating Score for Concentration %s" %self.concentrationVal)
 		print ("T1")
 		print self.T1imagefname	
@@ -45,11 +47,31 @@ class concentration(object):
 		pixels2 = [pixels[i * width:(i+1) * width] for i in xrange(height)]
 		print pixels2[height/2]
 
+		
+		midpnt = height/2 - SLICE_SIZE / 2
+
+		slices = []
 		res = []
-		for i in xrange(height):
-			res.append(abs(pixels1[height/2][i] - pixels2[height/2][i]))
+		j = 0
+		while j < SLICE_SIZE:
+			res = []
+			for i in xrange(height):
+				res.append(abs(pixels1[midpnt + j][i] - pixels2[midpnt + j][i]))
+			j += 1
+			slices.append(res)
 		print ('results')
-		print res
+		print slices
+
+		finalres = []
+		for i in xrange(height):
+			total = 0
+			for piece in slices:
+				total += piece[i]
+			total = total / SLICE_SIZE
+			finalres.append(total)
+		print ('final, averaged')
+		print finalres		
+
 def grabImages(image1, image2):
 	for dirName, subdirList, fileList in os.walk(IMAGE_DIRECTORY + IMAGE_SET_DATE + '/original'):
 		for fname in fileList:
@@ -61,7 +83,7 @@ def grabImages(image1, image2):
 
 if __name__ == '__main__':
 	IMAGE_DIRECTORY = '/home/vagrant/images/'
-	IMAGE_SET_DATE = '02.28.15'
+	IMAGE_SET_DATE = '04.19.16'
 
 	CONCENTRATIONS = set()
 	concentrations = []
