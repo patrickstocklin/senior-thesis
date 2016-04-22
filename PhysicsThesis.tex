@@ -1,6 +1,6 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage{fancyhdr}
-\usepackage[margin=1.1in]{geometry}
+\usepackage{geometry}
 \usepackage{setspace}
 \usepackage{graphicx}
 \usepackage{amsmath}
@@ -17,25 +17,30 @@
 \begin{document}
 	\begin{center}
 	\vspace{0.5cm}
-	\huge{Applications of Canny Edge Detection in Magnetic Resonance Imaging}\\
+	\huge{Applications of Image-Analysis \& Canny Edge Detection in Magnetic Resonance Imaging}\\
 	\vspace{0.5cm}
+
+	\singlespacing
 	\small{Patrick C. Stocklin}\\
 
 	\small{Advisor: Edward Van Keuren}
 
 	\small{Georgetown University}\\
 
-	\small{3/29/16}\\
+	\small{4/24/16}\\
 	\end{center}
 
 \begin{section}{Abstract}
+\singlespacing
 
-This paper discusses the possible applications of Canny edge detection towards observing the effectiveness of contrast agents in MRIs. [Talk about what was done first semester (research for feature-extraction)]. [Talk about what was done for second semester (synthesis of Manganese Chloride agents, construction of system, investigation of edge-detection).]
+Magnetic Resonance Imaging is an imaging technique used to create images from differing magnetization-vector relaxation times in tissues. By applying a constant magnetic field, the hydrogen protons' magnetizations are excited and precess about their axes. When hit by a radio frequency pulse, they are excited but return to their low energy states and emit energy. MRI contrast agents alter the differences in these relaxation times by introducing minute heterogenous magnetic fields. This paper discusses the possible applications of image-analysis techniques such as Canny edge detection towards observing the effectiveness of contrast agents in MRIs. The fall semester was designated as a period to investigate feature-extraction and other various techniques in image-analysis. Professor Van Keuren and I both focused our attention on Canny edge detection, in hopes that it would yield promising applications in our research. The spring semester was more focused on the applications of image-analysis on manganese chloride contrast agents. Multiple samples of manganese chloride with varying concentrations were synthesized and imaged in hopes of finding a promising contrast agent for $T_1$ and $T_2$ imaging. I also spent the spring semester constructing a stand-alone linux-based system for streamlining the analysis of sample images, as well as creating methods for determining the most effective concentration for a manganese-based contrast agent.
+
+%Add about what was found
 
 \end{section}
 
 \newpage
-
+\doublespacing
 %%%Things to Add for Sources:
 %%%Pictures of Different Thresholds
 %%%1D case for gradients.http://suraj.lums.edu.pk/~cs436a02/CannyImplementation.htm
@@ -46,52 +51,61 @@ This paper discusses the possible applications of Canny edge detection towards o
 \begin{section}{Background Information}
 
 \subsection{Magnetic Resonance Imaging}
-Magnetic Resonance Imaging (MRI) is an imaging techinique used to visualize the anatomy and physiological topology of living organisms. By using powerful externally-applied magnetic fields, scientists and physicians are able to render detailed images of the human body without exposing the patient to potentially lethal forms of radiation. It is this exact reason why magnetic resonance imaging is the predominantly-favored investigative tool for detecting and battling deadly cancer cells. MRI is generally agreed upon to be superior to Computed Tomography (CT) scans for neurobiological visualization because it avoids any harmful exposure to radiation and offers a more detailed image of the grey and white matter in the central nervous system$\cite{15}$.
-MRIs also allow for a multitude of images to be taken over a short span of time and may be used to monitor neural or vascular activity as the subject is placed under time-varying conditions or stimulation$\cite{15}\cite{16}$.
-Thus it is said to be the leading imaging technique for neuroimaging. In the context of this paper, MRI scans of contrast agents will be processed and analyzed to highlight regions of lighter or darker intensity produced by aforementioned contrast agents. Hopefully, by learning more about these contrast agents, we will discover new ways to implement Magnetic Resonance Imaging to effectively diagnose anatomical complications.
+Magnetic Resonance Imaging (MRI) is an imaging techinique used to visualize the anatomy and physiological topology of living organisms. By using powerful externally-applied magnetic fields, scientists and physicians are able to render detailed images of the human body without exposing the patient to potentially lethal forms of radiation. It is this exact reason why magnetic resonance imaging is the predominantly-favored investigative tool for detecting and battling deadly cancer cells. MRI is generally agreed upon to be superior to Computed Tomography (CT) scans for neurobiological visualization because it avoids any harmful exposure to radiation and offers a more detailed image of the grey and white matter in the central nervous system$\cite{1}$.
+MRIs also allow for a multitude of images to be taken over a short span of time and may be used to monitor neural or vascular activity as the subject is placed under time-varying conditions or stimulation$\cite{1}\cite{2}$.
+Thus it is said to be the leading imaging technique for neuroimaging. \
 
+%Change this section to be about how MRIs work
+In the context of this paper, MRI scans of contrast agents will be processed and analyzed to highlight regions of lighter or darker intensity produced by aforementioned contrast agents. Hopefully, by learning more about these contrast agents, we will discover new ways to implement Magnetic Resonance Imaging to effectively diagnose anatomical complications.
+
+
+\newpage
 \subsubsection{MRI Procedure}
-Because the human body is mostly comprised of water molecules with protons and nuclei, MRI has proven to be an effective means of rendering anatomical images. The hydrogen protons within the area of interest are placed under with a strong oscillating magnetic field. The protons' magnetic moment is temporarly altered, aligning with the induced magnetic-field $\cite{16}$. 
-Most clinical MRI machines typically operate between 0.7 - 2.0 Teslas$\cite{17}$. 
-A radio frequency pulse is then simultaneously applied to the patient, causing the protons to precess in reaction to the induced force coercing their spin-state towards equilibrium. 
+Because the human body is mostly comprised of water molecules containing single protons in the nuclei of the Hydrogen atoms, MRI has proven to be an effective means of rendering anatomical images. The hydrogen protons within the area of interest are placed under with a strong, constant magnetic field.
+Most clinical MRI machines typically operate between 0.7 - 2.0 Teslas$\cite{3}$. 
+The protons' magnetic moment is temporarly altered, precessing about the direction of the applied magnetic-field $\cite{2}$. 
+A radio frequency pulse is then simultaneously applied to the patient, causing the protons to become excited out of a state of equilibrium.
 This precession then yields a momentary change in the magnetic flux through the hydrogen atom, which then creates a signal that the MRI scanner interprets. The collection of signals are then processed according to their respective frequencies emitted, and the final produced image is obtained by applying a 2-D Fourier transformation across the spatial-frequency domain. 
-The signal frequency is directly proportional to the period of time it takes for the protons to return to their low-energy equiilibrium state. This is known as the relaxation period $\cite{17}$. 
-More specifically, the recovery of the longitudinal component of the proton's magnetization is classified as $T_1$ relaxation. This is essentially associated with the number of Hydrogen nuclei with parallel spin versus the number of nuclei with anti-parallel spin $\cite{17}$. 
-The loss of phase coherence in the proton's transversal plane is responsible for the transversal relaxation, known as $T_2$ relaxation. This relaxation time is associated with the number of hydrogen nuclei in phase with each other $\cite{17}$. 
-The difference between the two relaxation periods is largely responsible for kind of signal emitted during MRI.
+The signal frequency is directly proportional to the period of time it takes for the protons to return to their low-energy equiilibrium state. This is known as the relaxation period $\cite{3}$. 
+More specifically, the recovery of the longitudinal component of the proton's magnetization is classified as $T_1$ relaxation. This is essentially associated with the number of Hydrogen nuclei with parallel spin versus the number of nuclei with anti-parallel spin $\cite{3}$. 
+The loss of phase coherence in the proton's transversal plane is responsible for the transversal relaxation, known as $T_2$ relaxation. This relaxation time is associated with the number of hydrogen nuclei in phase with each other $\cite{3}$. 
+Both $T_1$ and $T_2$ relaxation rates govern the time it takes for the protons to return to equilibrium.
 
+
+\newpage
 \subsubsection{$T_1$ Relaxation}
-$T_1$, or {\em Spin-Lattice Relaxation Time}, is the time required for the magnetization vector to recover 63 percent ($[1-(\frac{1}{e})]$) of its longitudinal magnetization. It characterizes the exponential rate at which the longitudinal component of magnetization reaches equilibrium $\cite{17}$. This value is dependent on the nature of the material, and can be altered by the presence of ferromagnetic or paramagnetic particles $\cite{17}$. The longitudinal component of magnetization may be defined by the following time-dependent equation:
+$T_1$, or {\em Spin-Lattice Relaxation Time}, is the time required for the magnetization vector to recover 63 percent ($[1-(\frac{1}{e})]$) of its longitudinal magnetization. It characterizes the exponential rate at which the longitudinal component of magnetization reaches equilibrium $\cite{3}$. This value is dependent on the hydrogen proton's environment, and can be altered by the presence of ferromagnetic or paramagnetic particles $\cite{3}$. The longitudinal component of magnetization may be defined by the following time-dependent equation:
 
 \begin{center}
 $M_Z(t) = M_{Z,Eq}(1 - e^{-\frac{t}{T_1}})$ 
 \end{center}
 
-An MRI image may be $T_1$ weighted by adjusting the {\em Echo Time}, $T_E$, and {\em Repitition Time}, $T_R$, such that the values obey a conventional spin-echo sequence $\cite{18}$. The {\em Echo Time} may be thought of as the time period following excitation which the proton's signal is read $\cite{18}$. The {\em Repitition Time} may be described as the amount of time that exists between successive pulses of signal. The two times may be adjusted to heavily favor a $T_1$ signal and reduce the amount of contribution by the $T_2$ signal $\cite{18}$. By setting these short $T_R$ and $T_E$ times (typically on the order of $< 750$ ms and $< 40$ ms, respectively), the image will heavily favor image contrast caused by the longitudinal component of magnetization $\cite{18}$.
+%Ed says I may have to include more information for this section
+An MRI image may be $T_1$ weighted by adjusting the {\em Echo Time}, $T_E$, and {\em Repitition Time}, $T_R$, such that the values obey a conventional spin-echo sequence $\cite{4}$. The {\em Echo Time} may be thought of as the time period following excitation which the proton's signal is read $\cite{4}$. The {\em Repitition Time} may be described as the amount of time that exists between successive pulses of signal. The two times may be adjusted to heavily favor a $T_1$ signal and reduce the amount of contribution by the $T_2$ signal $\cite{4}$. By setting these short $T_R$ and $T_E$ times (typically on the order of $< 750$ ms and $< 40$ ms, respectively), the image will heavily favor image contrast caused by the longitudinal component of magnetization $\cite{4}$.
 
 \subsubsection{$T_2$ Relaxation}
-$T_2$, or {\em Spin-Spin Relaxation Time}, is the time required for the transversal component of magnetization to return 37 percent ($\frac{1}{e}$) of its initial magnetization. $T_2$ relaxation typically occurs more quickly than that of Spin-Lattice Relaxation Times $\cite{18}$. Like $T_1$, $T_2$ is also material dependent. The transversal component of magnetization may be defined by the following equation:
+$T_2$, or {\em Spin-Spin Relaxation Time}, is the time required for the transverse component of magnetization to return 37 percent ($\frac{1}{e}$) of its initial magnetization. $T_2$ relaxation typically occurs more quickly than that of Spin-Lattice Relaxation Times $\cite{4}$. Like $T_1$, $T_2$ is dependent on the proton's environment. The transversal component of magnetization may be defined by the following equation:
 
 \begin{center}
 $M_{XY}(t) = M_{XY}(0)e^{-\frac{t}{T_2}}$ 
 \end{center}
 
-$T_2$ weighted images may be derived by selecting a $T_E$ that is on the order of the contrast agents {\em Spin-Spin Relaxation Time}. This reduces the information gained by $T_1$ because we are now allowing the excited protons' spins to return to equilibrium before excitation $\cite{18}$.
+%Ed says "Also Point Out that T1 and T2 are characterized by measuring different magnetization directions (not just changing echo times)"
+
+$T_2$ weighted images may be derived by selecting a $T_E$ that is on the order of the contrast agents {\em Spin-Spin Relaxation Time}. This reduces the information gained by $T_1$ because we are now allowing the excited protons' spins to return to equilibrium before excitation $\cite{4}$.
 
 \subsubsection{Contrast Agents}
 
-The varying brightness contrast in the resulting images is created by the difference in the strength of the nuclear magnetic resonance signal recovered from the detectors. This typically is dependent on the difference between the two relaxation times of the nuclei within the sample. By altering the difference between the longitudinal and transversal relaxation times, doctors may manipulate the apparent brightness of the sample. In MRI scans, $T_1$ relaxation weighting will characteristically render white matter as white pixels$\cite{17}$. Gray matter within the examined region will appear gray$\cite{17}$. All cerebrospinal fluid, the clear colorless fluid that protects the brain matter, will appear black$\cite{17}$. However, sometimes the contrasting brightness between the types of brain matter will not be as profound or apparent. Therefore, scientists will typically employ the use of a contrast agent to induce a much brighter or darker signal to produce a clearer image. Because the process from which the MRI images are produce largely depends on the magnetic properties and field around the water molecules, contrast agents are chosen for their magnetic properties$\cite{18}$. 
+The varying brightness contrast in the resulting images is created by the difference in the strength of the nuclear magnetic resonance signal recovered from the detectors. 
+%Different types of tissues -> different T1 T2 naturally occuring contrast
+This typically is dependent on the difference between the two relaxation times of the nuclei within the sample. Because of the difference between the longitudinal and transverse relaxation times, doctors observe an enhanced or decreased brightness of the sample due to the proton's local environment. In MRI scans, $T_1$ relaxation weighting will characteristically render white matter as white pixels$\cite{3}$. Gray matter within the examined region will appear gray$\cite{3}$. All cerebrospinal fluid, the clear colorless fluid that protects the brain matter, will appear black$\cite{3}$. However, sometimes the contrasting brightness between the types of brain matter will not be as profound or apparent. Therefore, scientists will typically employ the use of a contrast agent to induce a much brighter or darker signal. Because the process from which the MRI images are produce largely depends on the magnetic properties and field around the water molecules, contrast agents are chosen for their magnetic properties$\cite{4}$. 
 
-For the majority of this paper, we will be concerning ourselves with manganese chloride as our contrast agent of interest. Despite being in its infancy as an effective contrast agent, manganese-based paramagnetic particles have proven to enchance the $T_1$ signal of MRI scans $\cite{19}$. Manganese ions ($Mn^{2+}$) are popular contrast agents in the use of MEMRI (Manganese Enhanced Magnetic Resonance Imaging) $\cite{19}$. It had even been discovered that natural products with a high concentration of manganese can be used for increasing $T_1$ signal $\cite{20}$.
+For the majority of this paper, we will be concerning ourselves with manganese chloride as our contrast agent of interest. Despite being in its infancy as an effective contrast agent, manganese-based paramagnetic particles have been proven to enchance the $T_1$ signal of MRI scans $\cite{5}$. Manganese ions ($Mn^{2+}$) are popular contrast agents in the use of MEMRI (Manganese Enhanced Magnetic Resonance Imaging) $\cite{5}$. It had even been discovered that natural products with a high concentration of manganese can be used for increasing $T_1$ signal $\cite{6}$.
 
 \subsection{Previous Work Done}
-Previous work done by Professor Edward Van Keuren in collaboration with the Georgetown University chemistry and physics departments, and the Georgetown Hospital Lombardi Comprehensive Cancer Center has made great progress in the exploration for biocompatible nanomaterials as useful contrast agents for MRI scans. Professor Van Keuren's research team has explored the synthesis of copolymers based on the metal-oxo cluster $Mn_8 Fe_8 O_{12}(L)_{16}-(H_2 O)_4$, where L is an acetate or vinyl benzoic acid, coupled with styrene\cite[p.~9040]{1}. The cluster's relaxivity was examined using NMR and confirmed $Mn_8 Fe_8 O_{12}(L)_{16}-(H_2 O)_4$ to be a promising $T_2$ contrast agent. The cluster was also determined to have low cytotoxicity when studied on human prostate cancer cells, potentially allowing it to be used {\em in vivo} for MRI scans\cite[p.~9040]{1}. Testing had also been done on the paramagnetic nanobeads produced by the metal-oxo cluster $Mn_8 Fe_4 - (VBA)_{16}$ copolymerized with styrene. The nanobeads had been confirmed as a potentially useful $T_1$ contrast agent, as their effect on the relaxivity within a polymer matrix only altered the transversal relaxation time and hardly affected the longitudinal relaxation time\cite{1}.
+Previous work done by Professor Edward Van Keuren in collaboration with the Georgetown University chemistry and physics departments, and the Georgetown Lombardi Comprehensive Cancer Center has made great progress in the exploration for biocompatible nanomaterials as useful contrast agents for MRI scans. Professor Van Keuren's research team has explored the synthesis of copolymers based on the metal-oxo cluster $Mn_8 Fe_8 O_{12}(L)_{16}-(H_2 O)_4$, where L is an acetate or vinyl benzoic acid, coupled with styrene\cite[p.~9040]{7}. The cluster's relaxivity was examined using NMR and confirmed $Mn_8 Fe_8 O_{12}(L)_{16}-(H_2 O)_4$ to be a promising $T_2$ contrast agent. The cluster was also determined to have low cytotoxicity when studied on human prostate cancer cells, potentially allowing it to be used {\em in vivo} for MRI scans\cite[p.~9040]{7}. Testing had also been done on the paramagnetic nanobeads produced by the metal-oxo cluster $Mn_8 Fe_4 - (VBA)_{16}$ copolymerized with styrene. The nanobeads had been confirmed as a potentially useful $T_1$ contrast agent, as their effect on the relaxivity within a polymer matrix only altered the transverse relaxation time ($T_2$) and hardly affected the longitudinal relaxation time ($T_1$)\cite{7}.
 
-More recently, there has been on-going research between the Lombardi Comprehensive Cancer Center and Georgetown University to determine the effect of particle shape and size on $T_2$ Relaxation in contrast agents. Iron oxide nanoparticles had recently been discovered as successful $T_2$ contrast agents.because of the inhomogeneous magnetic field neighboring the ferromagnetic particles $\cite{13}$. Previous research had proven that up to a critical point, the particle size directly alters the $T_2$ of ferromagnetic particles $\cite{13}$. This specific research explored three different particle contrast agents: 1) spherical magnetite ($Fe_3 O_3)$, 2) prolate magnetite, and 3) oblate barium ferrite ($BaFe_{12}O_{19}$). All particles were modeled as spheroidal, and samples consisted of varying concentration levels of contrast agents suspened in layers of 3 percent agar. It was confirmed that the size of the contrast agent did influence the relaxation time up to a limit, but it was observed that the oblate-shaped barium ferrite agent had possessed a relaxivity that surpassed the theoretical limit plotted against surface area per volume $\cite{13}$. Thus the oblate $BaFe_{12}O_{19}$ could prove useful as an effective $T_2$ contrast agent $\cite{13}$.
-
-\subsection{Image Registration}
-
-One of the nuances of biomedical imaging analysis is having to establish a universal coordinate basis for any two images we wish to analyze and compare. In an ideal scenario, all images taken of a patient would be oriented in such a way that, if one were to stack the images on top of each other, the body and organs would be perfectly aligned. However, this is obviously not the case: as the scanner produces multiple images, the patient may slightly move or turn, creating an image with features that are uncentered or rotated. This makes comparing two rendered images incredibly difficult, so it is imperative that both images are transformed so that their relevent features are aligned in the same coordinate system. 
+More recently, there has been on-going research between the Lombardi Comprehensive Cancer Center and Georgetown University to determine the effect of particle shape and size on $T_2$ Relaxation in contrast agents. Iron oxide nanoparticles had recently been discovered as successful $T_2$ contrast agents.because of the inhomogeneous magnetic field neighboring the ferromagnetic particles $\cite{8}$. Previous research had proven that up to a critical point, the particle size directly alters the $T_2$ of ferromagnetic particles $\cite{8}$. This specific research explored three different particle contrast agents: 1) spherical magnetite ($Fe_3 O_3)$, 2) prolate magnetite, and 3) oblate barium ferrite ($BaFe_{12}O_{19}$). All particles were modeled as spheroidal, and samples consisted of varying concentration levels of contrast agents suspened in layers of 3 percent agar. It was confirmed that the size of the contrast agent did influence the relaxation time up to a limit, but it was observed that the oblate-shaped barium ferrite agent had possessed a relaxivity that surpassed the theoretical limit plotted against surface area per volume $\cite{8}$. Thus the oblate $BaFe_{12}O_{19}$ could prove useful as an effective $T_2$ contrast agent $\cite{8}$.
 
 %\begin{wrapfigure}{R}{0.3\textwidth}
 %\begin{center}
@@ -103,23 +117,23 @@ One of the nuances of biomedical imaging analysis is having to establish a unive
 
 \subsection{Canny Edge Detection}
 
-Because we are interested in highlighting the regions of an MRI image where a contrast agent may brighten or darken the signal, it is necessary to discuss the process of Canny edge detection. Discovered by Australian computer scientist John F. Canny in 1986, Canny Edge Detection is a multi-stage algorithm used to detect a wide range of edges in any given image$\cite{3}$.%%%%%%%%
-This particular edge detection approach attempts to both minimize the low error rate at which it finds edges (find as many as possible) and suppress as much background noise as possible, so as to not produce spurious edges. Canny edge detection is used in many domains of imaging analysis, as it allows for massive amounts of data reduction by extracting only the useful and necessary bits of information. Among all edge detection methods, Canny's implementation is by far the most popular and reliable algorithm to date because it satisfies the three criteria for edge detection by means of calculus of variations$\cite{6}$:\\%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Because we are interested in highlighting the regions of an MRI image where a contrast agent may brighten or darken the signal, it is necessary to discuss the process of Canny edge detection. Discovered by Australian computer scientist John F. Canny in 1986, Canny Edge Detection is a multi-stage algorithm used to detect a wide range of edges in any given image$\cite{9}$.
+This particular edge detection approach attempts to both minimize the low error rate at which it finds edges (find as many as possible) and suppress as much background noise as possible, so as to not produce spurious edges. Canny edge detection is used in many domains of imaging analysis, as it allows for massive amounts of data reduction by extracting only the useful and necessary bits of information. Among all edge detection methods, Canny's implementation is by far the most popular and reliable algorithm to date because it satisfies the three criteria for edge detection by means of calculus of variations$\cite{10}$:\\
 
 \singlespacing
 \begin{enumerate}
-\item Low error rate for detection edges, the algorithm should detect as many edges as possible  $\cite{5}$.
-\item The edge points extracted from the solution must be localized to the center of the edge  $\cite{5}$.
-\item Any given edge must only be marked once and image noise must not create spurious false images  $\cite{5}$.
+\item Low error rate for detection edges, the algorithm should detect as many edges as possible  $\cite{11}$.
+\item The edge points extracted from the solution must be localized to the center of the edge  $\cite{11}$.
+\item Any given edge must only be marked once and image noise must not create spurious false images  $\cite{11}$.
 \end{enumerate}
 \doublespacing
 
-To achieve this, Canny edge detection requires several steps: 1) Smooth the image in order to reduce noise by applying an arbitrarily sized Gaussian filter across the intensity pixels, 2) Calculate the gradient of the intensity pixels, 3) Reduce the possibility of creating false edges by applying a non-maximum supression to the image, 4) Determine the potential edges by applying a "double threshold", and remove all other weak edges that are not connected to strong ones (Hysteresis). We will now discuss the required steps in greater detail$\cite{6}$.%%%%%%%%%%
+To achieve this, Canny edge detection requires several steps: 1) Smooth the image in order to reduce noise by applying an arbitrarily sized Gaussian filter across the intensity pixels, 2) Calculate the gradient of the intensity pixels, 3) Reduce the possibility of creating false edges by applying a non-maximum supression to the image, 4) Determine the potential edges by applying a "double threshold", and remove all other weak edges that are not connected to strong ones (Hysteresis). We will now discuss the required steps in greater detail$\cite{12}$.
 
 \subsubsection{Applying the Gaussian filter}
 
-Due to the inherently chaotic and imperfect nature of the process of MRI scans, Canny edge detection would be very susceptible to false positives (detecting unnecessary or weak edges due to unsupressed background noise). Therefore it is essential that we minimize the potential for this unintended detection by smoothing the intensity matrix of our image by masking each pixel with a Gaussian filter$\cite{4}$.%%%%%%%%%
-By masking each pixel of our image's intensity matrix, we effectively smooth the image matrix and reduce the amount of chaotic noise that may alter our edge detection's results. For a Gaussian filter with kernel size $(2k+1)\times(2k+1)$: our filter mask may be defined as$\cite{4}$:\\%%%%%%%%%%%%%
+Due to the inherently chaotic and imperfect nature of the process of MRI scans, Canny edge detection would be very susceptible to false positives (detecting unnecessary or weak edges due to unsupressed background noise). Therefore it is essential that we minimize the potential for this unintended detection by smoothing the intensity matrix of our image by masking each pixel with a Gaussian filter$\cite{13}$.%%%%%%%%%
+By masking each pixel of our image's intensity matrix, we effectively smooth the image matrix and reduce the amount of chaotic noise that may alter our edge detection's results. For a Gaussian filter with kernel size $(2k+1)\times(2k+1)$: our filter mask may be defined as$\cite{13}$:\\%%%%%%%%%%%%%
 \begin{center}
 $H_{ij} = \frac{1}{2\pi\sigma^{2}}^{-\frac{(i-k-1)^2+(j-k-1)^2}{2\sigma^2}}$
 \end{center}
@@ -142,7 +156,7 @@ $A_{GF} = \frac{1}{159}\begin{bmatrix}
 
 \subsubsection{Finding the Intensity Gradients}
 
-After smoothing our image to reduce background noise, the next step of Canny edge detection is to calculate the intensity gradients of all image pixels. Given an image matrix of intensity pixels, edges within the image are most likely to be found when there is a strong, well-defined gradient along a uniform direction, since this distinguishes what is a real-world edge. In order to achieve this, a 2-D gradient operator is selected to determine the intensity gradient of each pixel. There are several operators available to calculate the gradients, but the most popular is the $Sobel$ $operator$$\cite{10}$.%%%%%%%%%%%%%%
+After smoothing our image to reduce background noise, the next step of Canny edge detection is to calculate the intensity gradients of all image pixels. Given an image matrix of intensity pixels, edges within the image are most likely to be found when there is a strong, well-defined gradient along a uniform direction, since this distinguishes what is a real-world edge. In order to achieve this, a 2-D gradient operator is selected to determine the intensity gradient of each pixel. There are several operators available to calculate the gradients, but the most popular is the $Sobel$ $operator$$\cite{14}$.%%%%%%%%%%%%%%
 The 2-Dimensional Sobel operator $|G|$ is a pair of $n\times n$ convolution masks which estimate the gradient in the x and y directions. The Sobel Operator allows us to find the edge strength (gradient) according to $|G|$ = $|G_x|$ + $|G_y|$, where $G_x$ and $G_y$ for mask size 3 are shown below:
 
 \singlespacing
@@ -227,9 +241,9 @@ We have now successfully assigned realistic edge-directions for all image pixels
 
 \subsubsection{Applying non-maximum supression}
 
-What distinguishes Canny's implementation from other edge-detection algorithms is the careful use of edge-thinning$\cite{4}$.%%%%%%%%%
+What distinguishes Canny's implementation from other edge-detection algorithms is the careful use of edge-thinning$\cite{13}$.%%%%%%%%%
 The end result of this edge-thinning step is that all edges should be transformed into edges of pixels with unit width.
-The advantages of this process if that the resulting edges are that the edges are now sharp, precise, and better define the objects or regions we are interested in analyzing.
+The advantages of this process are that the edges are now sharp, precise, and better define the objects or regions we are interested in extracting or analyzing.
 Because the edges extracted from the gradient values may still be quite blurred and distorted, we would like to minimize the amount of extraneous edges extracted by removing the weakly defined edges.
 This is done by iterating through all of the pixels in our image, and comparing their gradient magnitudes to their neighboring pixels based on their direction. 
 A simple explanation of the edge-thinning process is included on the next page in the form of pseudocode:
@@ -261,7 +275,7 @@ A simple explanation of the edge-thinning process is included on the next page i
 \end{algorithm}
 \doublespacing
 
-As we iterate through all pixel values, each containing a gradient direction and magnitude value, we determine which neighboring pixels decide whether or not we supress the potential-edge pixel.
+As we iterate through all pixel values, each containing a gradient direction and magnitude, we examine the neighboring pixels and decide whether or not we suppress the potential-edge.
 A useful way to conceptualize the intended effect of this algorithm is by imagining we are examining a true horizontal edge with a completely verticle gradient direction.
 Because we want to thin the potential edges of our region of interest, we should inspect the intensities of the pixels above and below the pixel.
 If the pixel gradient's magnitude is the local maximum, we should keep it. 
@@ -270,17 +284,17 @@ If there are pixels in the positive or negative direction of the pixel's gradien
 \subsubsection{Applying double threshold: hysteresis}
 
 After edge-thinning, we finally have a transformed image of precise, small edge-pixels that hopefully accurately describe the objects or regions.
-We now wish to finalize our image by classifying the matrix of potential edge-pixels by constructing two gradient magnitude thresholds, $T_h$ and $T_l$ such that $T_h$$>$$T_l$$>$$0$, which will be used to determine whether the pixel is a strong edge or weak edge$\cite{2}$.%%%%%%%%%%%%%%%
+We now wish to finalize our image by classifying the matrix of potential edge-pixels by constructing two gradient magnitude thresholds, $T_h$ and $T_l$ such that $T_h$$>$$T_l$$>$$0$, which will be used to determine whether the pixel is a strong edge or weak edge$\cite{15}$.%%%%%%%%%%%%%%%
 Again, we iterate through our image matrix comparing the pixel's gradient magnitude to our two chosen thresholds.
 If the pixel's magnitude is greater than both thresholds, we may classify it as a strong pixel.
 If the pixel's magnitude is smaller than both thresholds, the pixel may be supressed or disregarded completely.
 However, if the pixel's magnitude is less than the upper threshold, but greater than the smaller threshold, then we classify it as a weak pixel.
 Weak pixels may or may not be part of the true edge of our object, this is determined by its connectedness to a strong pixel in its neighborhood.\\
 
-The process of hysteresis is a recursive approach for mapping edges based on pixel-connectedness. As we traverse the image matrix, the first strong pixel encountered with a magnitude greater than our upper threshold is declared an edge$\cite{2}$.%%%%% 
-From the edge pixel, we each examine its 8 adjacent neighbor-pixels: if any neighboring pixels are also defined to be strong pixels, they are appended to the edge object that maps our edge.
+The process of hysteresis is a recursive approach for mapping edges based on pixel-connectedness. As we traverse the image matrix, the first strong pixel encountered with a magnitude greater than our upper threshold is declared an edge$\cite{15}$.%%%%% 
+From the edge pixel, we examine its 8 adjacent neighbor-pixels: if any neighboring pixels are also defined to be strong pixels, they are appended to the edge object that maps our edge.
 Those pixels are further examined for adjacent strong pixels until we encounter our base case of there being only adjacent weak pixels.
-A data structure such as a map must be used to prevent the revisitation of previously encountered pixels $\cite{2}$.
+A data structure such as a map must be used to prevent the revisitation of previously encountered pixels $\cite{15}$.
 
 Now we must handle whether or not we preserve the weak pixels.
 The process is similar to mapping the strong pixels to edges in that we examine every weak pixel's 8 surrounding neighbor-pixels. 
@@ -300,11 +314,15 @@ $T_h$ = 300, $T_l$ = 100 \hspace{20mm} $T_h$ = 200, $T_l$ = 150
 \end{center}
 
 Due to the fact that it is left to the analyst to determine the limiting gradient values, it is worth noting the effects of altering the threshold values $T_h$ and $T_l$.
-As one increases the upper-threshold $T_h$, fewer pixels will satisfy the criteria for being a strong edge, so there will be less edges produced in the final produced image $\cite{11}$.
-However, as you increase the lower-threshold $T_l$, fewer pixels will satisfy the condition for being a weak edge, so the edges that are rendered will possess lengths that are much smaller $\cite{7}$.
+As one increases the upper-threshold $T_h$, fewer pixels will satisfy the criteria for being a strong edge, so there will be fewer edges produced in the final image $\cite{16}$.
+However, as you increase the lower-threshold $T_l$, fewer pixels will satisfy the condition for being a weak edge, so the edges that are rendered will possess lengths that are much smaller $\cite{17}$.
 The degree to which we alter the threshold values depends on the context and desired output of our edge detection, and thus will need to be fine-tuned. 
 
-We can briefly verify the consequences of altering the thresholds by observing the four images of Einstein above. The original image is then processed through Canny edge detection with gradient threshold values of 100 for lower bound, 200 for upper bound. By raising the upper bound to 300, we reduce the number of strong pixels that fall below a gradient value of less than 300. So there are now fewer edge objects being rendered. By raising the lower bound to 150, we reduce the length of the resulting edges because we now have a higher metric for filtering the weak pixels that are adjacent to strong ones. Both increases to the thresholds yield a fewer amount of edges, but the reasons for the decrease in pixelated edges are different.
+We can briefly verify the consequences of altering the thresholds by observing the four images of Einstein above. The original image is then processed through Canny edge detection with gradient threshold values of 100 for lower bound, 200 for upper bound. By raising the upper bound to 300, we reduce the number of strong pixels that fall below a gradient value of less than 300, so there are now fewer edge objects being rendered. By raising the lower bound to 150, we reduce the length of the resulting edges because we now have a higher metric for filtering the weak pixels that are adjacent to strong ones. Both increases to the thresholds yield a fewer amount of edges, but the reasons for the decrease in pixelated edges are different.
+
+\subsection{Image Registration}
+
+One of the nuances of biomedical imaging analysis is having to establish a universal coordinate basis for any two images we wish to analyze and compare. In an ideal scenario, all images taken of a patient would be oriented in such a way that, if one were to stack the images on top of each other, the body and organs would be perfectly aligned. However, this is obviously not the case: as the scanner produces multiple images, the patient may slightly move or turn, creating an image with features that are uncentered or rotated. This makes comparing two rendered images incredibly difficult, so it is imperative that both images are transformed so that their relevent features are aligned in the same coordinate system. 
 
 \newpage
 \subsection{Technologies and Frameworks}
@@ -322,9 +340,8 @@ This section will briefly cover the related technologies used in constructing an
 \caption{VirtualBox}
 \end{wrapfigure}
 
-
-VirtualBox is an open-source type-2/hosted (as opposed to hardware-hosted) hypervisor developed by Innotek GmbH in 2007 and acquired by Oracle Corporation in 2010. 
-It is cross-platform compatible as long as the machine adheres to an x86 CPU architecture. VirtualBox allows the user to support and manage their own virtual machines running on their computer. Virtualization is a useful technique because it offers an easy and streamlined solution to shipping software packages and systems. Virtualization also offers the user the ability to spin up multiple operating systems and a more stable and isolated environment for testing and stressing of software and systems. To this day, Vagrant continues to grow and garner community support through the Open Source Project. 
+VirtualBox is an open-source memory-hosted (as opposed to hardware-hosted) hypervisor developed by Innotek GmbH in 2007 and acquired by Oracle Corporation in 2010 $\cite{18}$. 
+It is cross-platform compatible as long as the machine adheres to an x86 CPU architecture $\cite{18}$. VirtualBox allows the user to support and manage their own virtual machines running on their host computer. Virtualization is a useful technique because it offers an easy and streamlined solution to shipping software packages and systems. Virtualization also offers the user the ability to spin up multiple operating systems and a more stable and isolated environment for testing and stressing of software and systems. To this day, Vagrant continues to grow and garner community support through the Open Source Project $\cite{18}$.
 
 \begin{wrapfigure}{R}{0.2\textwidth}
 \begin{center}
@@ -334,11 +351,11 @@ It is cross-platform compatible as long as the machine adheres to an x86 CPU arc
 
 \subsubsection{Vagrant}
 
-Vagrant is another open-source software written in Ruby and used for configuring virtual environments. It was developed and released by HashiCorp in 2010 and continues to grow. Vagrant is commonly used as a wrapper in junction with virtualization software such as VirtualBox or VMWare. It aims to solve the issue of software refusing to cooperate with a user's unique system or machine for whatever reason. Basically, if it works on one person's machine, it should work on anybody else's so long as they have Vagrant installed. Some of the benefits of using Vagrant include a streamlined, automated provisioning as well as massive portability. 
+Vagrant is another open-source software written in Ruby and used for configuring virtual environments $\cite{19}$.. It was developed and released by HashiCorp in 2010 and continues to grow. Vagrant is commonly used as a wrapper in conjunction with virtualization software such as VirtualBox or VMWare. It aims to solve the issue of software refusing to cooperate with a user's unique system or machine for whatever reason. Basically, if it works on one person's machine, it should work on anybody else's so long as they have Vagrant installed. Some of the benefits of using Vagrant include a streamlined, automated provisioning as well as effortless portability $\cite{19}$. 
 
 \subsubsection{Conda}
 
-Conda is an open-source package and environment management system developed by Continuum Analytics and released in 2014. Although it is written primarily in and for Python, it can support packages designed for multiple languages in mind, such as R or C++. It allows the user to seamlessly install package binaries from well-maintained repositories as well as interchangeably switch between versions of software for dependency-integrity. 
+Conda is an open-source package and environment management system developed by Continuum Analytics and released in 2014 $\cite{20}$. Although it is written primarily in and for Python, it can support packages designed for multiple languages in mind, such as R or C++. It allows the user to seamlessly install package binaries from well-maintained repositories as well as interchangeably switch between versions of software for dependency-integrity. 
 
 \subsubsection{OpenCV}
 
@@ -351,13 +368,13 @@ Conda is an open-source package and environment management system developed by C
 \end{wrapfigure}
 
 
-OpenCV (Open Source Computer Vision) is a cross-platform ensemble of computer-vision functions originally developed by Intel in 1999 in Nizhny Novgorod, Russia. It is entirely written in C/C++ and has interfaces for C, C++, Python, Java and MATLAB. The project was created as an initiative to further progress computationally intensive processes (such as ray-tracing) by offering a portable, free library of optimized functions that adhered to a well-defined infrastructure which developers could collaborate on. The library offers many vision-applications and statistical learning models such as feature extraction, motion-tracking, classification and learning-trees. There was a second release of OpenCV in 2008. Since 2012, the project has been maintained by a non-profit foundation OpenCV.org. 
+OpenCV (Open Source Computer Vision) is a cross-platform ensemble of computer-vision functions originally developed by Intel in 1999 in Nizhny Novgorod, Russia $\cite{21}$. It is entirely written in C/C++ and has interfaces for C, C++, Python, Java and MATLAB $\cite{21}$. The project was created as an initiative to further progress computationally intensive processes (such as ray-tracing) by offering a portable, free library of optimized functions that adhered to a well-defined infrastructure which developers could collaborate on. The library offers many vision-applications and statistical learning models such as feature extraction, motion-tracking, classification and learning-trees $\cite{21}$. There was a second release of OpenCV in 2008. Since 2012, the project has been maintained by a non-profit foundation OpenCV.org. 
 
-OpenCV is widely used throughout the globe for a variety of applications. Thanks to its efficient real-time processing power, OpenCV is used for purposes such as detecting swimming pool drownings, intrusions in surveillance video, product quality assurance and rapid, instantaneous facial recognition. It has approximately 2500 optimized computer-vision and machine learning algorithms, with over 9 million downloads worldwide. 
+OpenCV is widely used throughout the globe for a variety of applications. Thanks to its efficient real-time processing power, OpenCV is used for purposes such as detecting swimming pool drownings, intrusions in surveillance video, product quality assurance and rapid, instantaneous facial recognition. It has approximately 2500 optimized computer-vision and machine learning algorithms, with over 9 million downloads worldwide $\cite{21}$.
 
 \subsubsection{ImageJ}
 
-ImageJ is an open-source java-based image-processing software developed by the National Institute of Health. It was released in 1997 as a successor to the freeware image analysis software titled NIH Image. It contains an extensible toolset for image manipulation and can accommodate most image formats (.GIF, .JPEG, .PNG, .BMP). By utilizing an in-memory stack of images per window, it can quickly perform such calculations as contrast manipulation, convolution, Fourier analysis, and smoothing/sharpening. ImageJ was used for sample-quality inspection after their preparation. Currently, it is one of the fastest java-written image-processing softwares to exist, clocking in at 40 million pixels per second, or an entire 2048x2048 image in 0.1 seconds.
+ImageJ is an open-source java-based image-processing software developed by the National Institute of Health $\cite{22}$. It was released in 1997 as a successor to the freeware image analysis software titled NIH Image. It contains an extensible toolset for image manipulation and can accommodate most image formats (.GIF, .JPEG, .PNG, .BMP). By utilizing an in-memory stack of images per window, it can quickly perform such calculations as contrast manipulation, convolution, Fourier analysis, and smoothing/sharpening $\cite{22}$. ImageJ was used for sample-quality inspection after their preparation. Currently, it is one of the fastest java-written image-processing softwares to exist, clocking in at 40 million pixels per second, or an entire 2048x2048 image in 0.1 seconds $\cite{22}$.
 
 \end{section}
 
@@ -370,11 +387,11 @@ This section will provide a detailed explanation of the innerworkings of the sys
 
 \subsection{Design of System}
 
-This section will walk through the construction and design of the edge-detection system I have created. I will detail the inner-workings and function of the system.
+This section will walk through the construction and design of the image-analysis system I have created. I will detail the inner-workings and function of the system.
 
-\subsubsection{Benefits}
+\subsubsection{Benefits and Utility}
 
-As the reader may have noticed in the subsection detailing the relevant technologies, every single software listed was categorized as open source software. One of the most stifling drawbacks of depending on other image-analysis software (such as MATLAB) is that the software is typically labeled as proprietary, or closed source software. This poses several issues: 1) researchers and scientists may not have the resources to purchase a legal license to use the software 2) the code which the algorithms are implemented with is not available to the public, and 3) collaborative development is non-existent outside the owner of the license. By only using open source technologies, I have created a completely free and easily-accessible tool for other researchers to perform automated edge-detection on a corpus of images. Thanks to the layer of abstraction and machine-isolation provided by Vagrant, the system is not restricted to the user-machine's dependencies. Thus the system is simple to deploy to whomever would be interested. 
+As the reader may have noticed in the subsection detailing the relevant technologies, every single software listed was categorized as open source software. One of the most stifling drawbacks of depending on other image-analysis software (such as MATLAB) is that the software is typically labeled as proprietary, or closed-source software. This poses several issues: 1) researchers and scientists may not have the resources to purchase a legal license to use the software 2) the code which the algorithms are implemented with is not available to the public, and 3) collaborative development is non-existent outside the owner of the license. By including only open source technologies, I have created a completely free and easily-accessible tool for other researchers to perform automated edge-detection on a corpus of images. Thanks to the layer of abstraction and hardware-isolation provided by virtualization software such as Vagrant and VirtualBox, the system is not heaviliy reliant on the user-machine's dependencies. Thus the system is effortless to deploy for whomever would be interested. 
 
 \subsubsection{An Overhead View}
 
@@ -392,103 +409,267 @@ Anybody can download this system by simply cloning the project's repository from
 
 \subsection{Synthesis of Manganese Chloride Contrast Agents}
 
+To determine which concentrations of manganese chloride to use for our testing, we first began by taking both $T_1$ and $T_2$ weighted MRI scans of varying concentrations of contrast agent and distilled water in 10mL vials. Concentrations could vary anywhere from 0.01 to 5 parts manganese chloride to water. It was then left to the discretion of the lab-worker to select a range of concentrations that best yielded a brighter image for $T_1$ imaging and a darker image for $T_2$. On the 5th of April, 2016, Xiaowan Zheng and I selected 6 concentrations of 2, 1, 0.5, 0.2, 0.1, and 0.8 as candidate concentrations for the next procedure. All 6 concentrations proved to be hopeful contrast agents in that they produced brighter and darker images for $T_1$ and $T_2$.\\
+
+After selecting our 6 concentrations, we proceeded to recreate the contrast agents in volumes of 20mL. With a 100 $u$Molar solution of manganese chloride we then recreated the concentrations found to be promising by once again mixing with parts of distilled water. The componenents of each contrast agents are below:
+
+\begin{center}
+    \begin{tabular}{ | l | l | p{2cm} |}
+    \hline
+    Concentration & mL of $MnCl_2$ & mL of $H_2O$ \\ \hline
+    2 & .4 mL & 19.6 mL  \\ \hline
+    1 & .2 mL & 19.8 mL \\ \hline
+   .5 & .1 mL & 19.9 mL \\ \hline
+   .2 & .05 mL & 19.95 mL \\ \hline
+   .1 & .02 mL & 19.98 mL \\ \hline
+   .08 & .8 mL of 2uM & 19.2 mL \\ \hline
+    \end{tabular}
+\end{center}
+
+Once all concentrations have been portioned out, we then set out to mix each contrast agent with heated liquid agar. Because agar solidifies at room temperature, we can stack varying concentrations of contrast agent on top of each other. So we first mix 200 mL of distilled $H_2 O$ with 6 grams of agar to create a solution of 3 percent pure agar. The agar solution is then heated in a microwave until the solution is homogeneous enough that the agar particles are distributed uniformly enough. To remove air bubbles from the agar, we place the solution in a heat bath. Air bubbles could potentially ruin our samples' images, so it was imperative to remove them as best as possible.\\
+
+\begin{center}
+\includegraphics[scale=0.5]{6tray.png}
+\end{center}
+
+Once our solution of agar was as homogeneous as possible, we then combined 5 mL of each contrast agent with 5 mL of agar. Each mixture was placed into one of 6 wells and left to dry. The photograph above shows mixtures, from right to left, of concentrations 2, 1, 0.5, 0.2, 0.1, 0.08 (empty). Once the wells were hardened, we were finally able to slice cubettes of contrast agent for injecting into our final sample to observe the effectiveness of the contrast agents.
+
+We then began to create our 50 mL vial containing layers of hardened agar mixed with contrast agents of different concentrations. The first layer at the bottom of the vial was filled with pure agar. This first layer provides the ground that the first cubette of manganese chloride will rest upon. To extract the cubette, a precision knife was used to slice the jello-like agent into many sections. Upon inspection, the cubette that was the most uniform in size and substance, meaning no bubbles, tears, or miscellaneous impurities, was selected as the candidate. The first candidate cubette of concentration 2 was placed on the level of pure agar. The space surrounding the candidate cubette was filled with pure agar and left to solidify, providing the next level for the sequential cubette to sit on. It is important to note that the surrounding agar had to provide a buffer between each cubette, so each cubette was completely submerged in surrounding agar. This process was repeated until we had selected candidate cubettes from each concentration. The remainder of the vial was filled with agar, and became ready for imaging. \\
 
 
+\begin{center}
+\includegraphics[scale=0.7]{sample.png} \\
+\small{A schematic of the 50 mL vial, taken from [8]}
+\end{center}
+
+\end{section}
+
+\newpage
+\begin{section}{Results}
+\subsection{Affirming the validity of a sample}
+Images to Include: Edge Detections
+	-Lots of Noise (Pure Agar)
+	-T2 with lots of gunk in the middle
+		-Varying Thresholds
+	-T1 with blank cubette in the middle
+		-Varying Thresholds
+
+Talk about Edge Detection Results:
+	Thresholds that were selected and interested
+	How did it handle noisy data?
+	What do these results mean?
+	Inhomogeneity in the cubette
+
+\subsection{Determining the most optimal $Mn-Cl_2$ Concentration}
+\subsubsection{Method}
+Talk about how I went about solving the issue
+	Applying a Gaussian Filter/1-D convolution mask across the slices of pixels
+	Averaging slices of images
+	Calculating Area Under Curve as metric for effectiveness
+Normalizing the AUC by the agar (ways to solve this? Binning discretized values, subtracting average agar value contrast from final slice)
+Talk about how size of cubette must be uniform
+Talk about the theoretical model of there being critical point of concentration that does not yield effective contrast
+Image Registration discussion
+
+Images to Include: Fabricated Images (lol)
+	Effect of Applying Filter to Final Slice (matplotlib figs)
+	Areas under the Curve
+		-Before Taking Contrast
+		%-Show difference in T1_T2
+
+
+
+\end{section}
+
+\newpage
+\begin{section}{Conclusion and Discussion}
+\subsection{Future Applications}
+
+Talk about collaboration on system
+	Turn it into a ML project
+	More Image Analysis Techniques
+
+Future Endeavours
 \end{section}
 
 \newpage
 \singlespacing
 \begin{thebibliography}{9}
 
-
+%Good
 \bibitem{1}
-Michele Pablico-Langisgan, William Hickling, Emily Japp, Olga Rodriguez, Anup Ghosh, Chris Albanese, Maki Nishida, Edward Van Keuren, Stanley Fricke, Norman Dollahon, Sarah Stoll. 2013, Magnetic Nanobeads as Potential Contrast Agents for Magnetic Resonance Imaging, {\em American Chemical Society}, v.7 no.10, p.9040-9048.
-
-\bibitem{2}
-Trucco, Verri. {\em Introductory Techniques for 3-D Computer Vision}, Prentice Hall, 1998.
-
-\bibitem{3}
-Introduction to Computer Vision and Image Processing - Luong Chi Mai, Department of Pattern Recognition and Knowledge Engineering
-
-\bibitem{4}
-John Canny, {\em A Computational Approach to Edge Detection}. IEEE Computer Society, 1986
-
-\bibitem{5}
-A Survey and Evaluation of Edge Detection Operators Application to Medical Images - Hanene Trichili, Mohamed-Salim Bouhlel, Nabl Derbel, Lotfi Kamoun, IEEE, 2002
-
-\bibitem{6}
-Image Editing in the contour domain - James Elder and Richard Goldberg, IEEE Transactions on PAMI
-
-\bibitem{7}
-Statistical Edge Detecton: Learning and Evaluating edge cues - Scott Konishi, Alan Yuille, James Coughlin, and Song Chun Zhu, IEEE Transactions on PAMI
-
-\bibitem{8}
-Learning to Detect Natural Image Boundaries using Local Brightness, Color, and texture cues - David Martin, Charless Fowlkes, and Jitendra Malki, IEEE Transactions on PAMI
-
-\bibitem{9}
-$http://dasl.mem.drexel.edu/alumni/bGreen/www.pages.drexel.edu/_weg22/edge.html$ reformat later
-
-\bibitem{10}
-Marc Pollefeys Slides (reformat later)
-
-\bibitem{11}
-R. Deriche, Using Canny's criteria to derive a recursively implemented optimal edge detector, Int. J. Computer Vision, Vol. 1, pp. 167–187, April 1987.
-
-\bibitem{12}
-Liu Cai,  {\em A  kind  of  advanced  Sobel  image  edge detection  algorithm}, Guizhou Industrial College Transaction (Natural Science Edition), 2004, 77-79. 
-
-%%%York Paper
-\bibitem{13} 
-Joseph N. York, Christopher Albanese, Olga Rodriguez, Yi-Chien Lee, Marian Ackun-Farmmer, Edward Van Keuren. 2014, The Effects of Particle Shape and Size on T2 Relaxation in Magnetic Resonance Imaging. {\em Journal of Biomedical Nanotechnology}, Vol. 10, p.3392-3396.
-
-%%%Kobayashi and Otsu Image Gradients
-\bibitem{14}
-Takumi Kobayashi and Nobuyuki Otsu, {\em Image Feature Extraction Using Gradient Local Auto-Correlations}. National Institute of Advanced Industrial Science and Technology, 2008. Springer-Vergal, Berlin.
-
-%%%MRI Sources
-\bibitem{15}
 Formica D, Silvestri S (April 2004). {\em Biological effects of exposure to magnetic resonance imaging: an overview}. Biomed Eng Online 3: 11. 
 
-\bibitem{16}
+%Good
+\bibitem{2}
 American Society of Neuroradiology, 2013. {\em ACR-ASNR Practice Guideline for the Performance and Interpretation of Magnetic Resonance Imaging (MRI) of the Brian}.
 
-%%%T_1/T_2 Sources
-\bibitem{17}
+%Good
+\bibitem{3}
 McRobbie D., et al. MRI, {\em From picture to proton}. 2003
 
-\bibitem{18}
+%Good
+\bibitem{4}
 Malcolm H. Levitt (2001). {\em Spin Dynamics: Basics of Nuclear Magnetic Resonance}. Wiley.
 
-%Manganese Chloride Sources
-\bibitem{19}
+%Good
+\bibitem{5}
 Koretsky, Alan P.; Silva, Afonso C. (2004). {\em Manganese-enhanced magnetic resonance imaging (MEMRI)}. NMR in Biomedicine 17 (8): 527–31
 
-\bibitem{20}
+%Good
+\bibitem{6}
 Lin, Yi-Jen; Koretsky, Alan P. (1997). {\em Manganese ion enhances T1-weighted MRI during brain activation: An approach to direct imaging of brain function}. Magnetic Resonance in Medicine 38 (3): 378–88.
 
-%%%ImageJ Sources
-%%% Eliceiri K, Rueden C (2005). "Tools for visualizing multidimensional images from living specimens". Photochem Photobiol 81 (5): 1116–22. doi:10.1562/2004-11-22-IR-377. PMID 15807634.
+%Good
+\bibitem{7}
+Michele Pablico-Langisgan, William Hickling, Emily Japp, Olga Rodriguez, Anup Ghosh, Chris Albanese, Maki Nishida, Edward Van Keuren, Stanley Fricke, Norman Dollahon, Sarah Stoll. 2013, Magnetic Nanobeads as Potential Contrast Agents for Magnetic Resonance Imaging, {\em American Chemical Society}, v.7 no.10, p.9040-9048.
 
-%%% Schneider CA, Rasband WS, Eliceiri KW (2012). "NIH Image to ImageJ: 25 years of image analysis". Nat Methods 9 (7): 671–675. doi:10.1038/nmeth.2089. PMID 22930834.
+%Good
+\bibitem{8}
+Joseph N. York, Christopher Albanese, Olga Rodriguez, Yi-Chien Lee, Marian Ackun-Farmmer, Edward Van Keuren. 2014, The Effects of Particle Shape and Size on T2 Relaxation in Magnetic Resonance Imaging. {\em Journal of Biomedical Nanotechnology}, Vol. 10, p.3392-3396.
 
-%%% http://imagej.nih.gov/ij/features.html
+%Good
+\bibitem{9}
+Introduction to Computer Vision and Image Processing - Luong Chi Mai, Department of Pattern Recognition and Knowledge Engineering
 
-%%%VIRTUAL BOX SOURCES
-%%%The Manual
-%%%Copyright© 1995-2014 Oracle and/or its affiliates. All rights reserved
-%%%https://www.virtualbox.org/manual/ch01.html
+%Good
+\bibitem{10}
+Image Editing in the contour domain - James Elder and Richard Goldberg, IEEE Transactions on PAMI
 
-%%%Vagrant SOURCES
-%%%https://www.vagrantup.com/about.html
+%Good
+\bibitem{11}
+A Survey and Evaluation of Edge Detection Operators Application to Medical Images - Hanene Trichili, Mohamed-Salim Bouhlel, Nabl Derbel, Lotfi Kamoun, IEEE, 2002
 
-%%%CONDA SOURCES
-%%%http://conda.pydata.org/ pydata.org. Retrieved 9 April 2015.
-%%%http://finance.yahoo.com/news/continuum-analytics-launches-anaconda-server-140000663.html
+%Good
+\bibitem{12}
+D. Marr and E. Hildreth. {\em Theory of edge detection}. Proc. Royal Soc. London, 207:187–217, 1980
 
-%%%OPENCV SOURCES
-%%%http://opencv.org/about.html
-%%%
+%Good
+\bibitem{13} 
+John Canny, {\em A Computational Approach to Edge Detection}. IEEE Computer Society, 1986
 
+%Good
+\bibitem{14}
+D. Marr and E. Hildreth. {\em Theory of edge detection}. Proc. Royal Soc. London, 207:187–217, 1980
+
+%Good
+\bibitem{15}
+Trucco, Verri. {\em Introductory Techniques for 3-D Computer Vision}, Prentice Hall, 1998.
+
+%Good
+\bibitem{16}
+R. Deriche, Using Canny's criteria to derive a recursively implemented optimal edge detector, Int. J. Computer Vision, Vol. 1, pp. 167–187, April 1987.
+
+%Good
+\bibitem{17}
+Statistical Edge Detecton: Learning and Evaluating edge cues - Scott Konishi, Alan Yuille, James Coughlin, and Song Chun Zhu, IEEE Transactions on PAMI
+
+%Good
+\bibitem{18}
+VirtualBox Manual, Copyright© 1995-2014 Oracle and/or its affiliates. All rights reserved: https://www.virtualbox.org/manual/ch01.html
+
+%Good
+\bibitem{19}
+Vagrant Documentation, HashiCorp: https://www.vagrantup.com/about.html
+
+%Good
+\bibitem{20}
+Conda Documentation, Continuum-Analytics: http://conda.pydata.org/ pydata.org. (Retrieved 9 April 2015)
+
+%Good
+\bibitem{21} 
+OpenCV Documentation, OpenCV.org: http://opencv.org/about.html
+
+%Good
+\bibitem{22}
+Schneider CA, Rasband WS, Eliceiri KW (2012). {\em NIH Image to ImageJ: 25 years of image analysis}. Nat Methods 9 (7): 671–675.
+
+\bibitem{23}
+S. Agaian, A. Almuntashri. 2009. {\em Noise-Resilient Edge Detection Algorithm for Brain MRI Images}. 31 Annual International Conference of the IEEE EMBS, MN, U.S.A., September 2-6, 2009.
+% \bibitem{1}
+% Michele Pablico-Langisgan, William Hickling, Emily Japp, Olga Rodriguez, Anup Ghosh, Chris Albanese, Maki Nishida, Edward Van Keuren, Stanley Fricke, Norman Dollahon, Sarah Stoll. 2013, Magnetic Nanobeads as Potential Contrast Agents for Magnetic Resonance Imaging, {\em American Chemical Society}, v.7 no.10, p.9040-9048.
+
+% \bibitem{2}
+% Trucco, Verri. {\em Introductory Techniques for 3-D Computer Vision}, Prentice Hall, 1998.
+
+% \bibitem{3}
+% Introduction to Computer Vision and Image Processing - Luong Chi Mai, Department of Pattern Recognition and Knowledge Engineering
+
+% \bibitem{4}
+% John Canny, {\em A Computational Approach to Edge Detection}. IEEE Computer Society, 1986
+
+% \bibitem{5}
+% A Survey and Evaluation of Edge Detection Operators Application to Medical Images - Hanene Trichili, Mohamed-Salim Bouhlel, Nabl Derbel, Lotfi Kamoun, IEEE, 2002
+
+% \bibitem{6}
+% Image Editing in the contour domain - James Elder and Richard Goldberg, IEEE Transactions on PAMI
+
+% \bibitem{7}
+% Statistical Edge Detecton: Learning and Evaluating edge cues - Scott Konishi, Alan Yuille, James Coughlin, and Song Chun Zhu, IEEE Transactions on PAMI
+
+% \bibitem{8}
+% Learning to Detect Natural Image Boundaries using Local Brightness, Color, and texture cues - David Martin, Charless Fowlkes, and Jitendra Malki, IEEE Transactions on PAMI
+
+% \bibitem{9}
+% William E. Green, Edge Detection Tutorial (2002), Drexel University: $http://dasl.mem.drexel.edu/alumni/bGreen/www.pages.drexel.edu/_weg22/edge.html$
+
+% \bibitem{10}
+% D. Marr and E. Hildreth. {\em Theory of edge detection}. Proc. Royal Soc. London, 207:187–217, 1980
+
+% \bibitem{11}
+% R. Deriche, Using Canny's criteria to derive a recursively implemented optimal edge detector, Int. J. Computer Vision, Vol. 1, pp. 167–187, April 1987.
+
+% \bibitem{12}
+% Liu Cai,  {\em A  kind  of  advanced  Sobel  image  edge detection  algorithm}, Guizhou Industrial College Transaction (Natural Science Edition), 2004, 77-79. 
+
+% %%%York Paper
+% \bibitem{13} 
+% Joseph N. York, Christopher Albanese, Olga Rodriguez, Yi-Chien Lee, Marian Ackun-Farmmer, Edward Van Keuren. 2014, The Effects of Particle Shape and Size on T2 Relaxation in Magnetic Resonance Imaging. {\em Journal of Biomedical Nanotechnology}, Vol. 10, p.3392-3396.
+
+% %%%Kobayashi and Otsu Image Gradients
+% \bibitem{14}
+% Takumi Kobayashi and Nobuyuki Otsu, {\em Image Feature Extraction Using Gradient Local Auto-Correlations}. National Institute of Advanced Industrial Science and Technology, 2008. Springer-Vergal, Berlin.
+
+% %%%MRI Sources
+% \bibitem{15}
+% Formica D, Silvestri S (April 2004). {\em Biological effects of exposure to magnetic resonance imaging: an overview}. Biomed Eng Online 3: 11. 
+
+% \bibitem{16}
+% American Society of Neuroradiology, 2013. {\em ACR-ASNR Practice Guideline for the Performance and Interpretation of Magnetic Resonance Imaging (MRI) of the Brian}.
+
+% %%%T_1/T_2 Sources
+% \bibitem{17}
+% McRobbie D., et al. MRI, {\em From picture to proton}. 2003
+
+% \bibitem{18}
+% Malcolm H. Levitt (2001). {\em Spin Dynamics: Basics of Nuclear Magnetic Resonance}. Wiley.
+
+% %Manganese Chloride Sources
+% \bibitem{19}
+% Koretsky, Alan P.; Silva, Afonso C. (2004). {\em Manganese-enhanced magnetic resonance imaging (MEMRI)}. NMR in Biomedicine 17 (8): 527–31
+
+% \bibitem{20}
+% Lin, Yi-Jen; Koretsky, Alan P. (1997). {\em Manganese ion enhances T1-weighted MRI during brain activation: An approach to direct imaging of brain function}. Magnetic Resonance in Medicine 38 (3): 378–88.
+
+% %%%ImageJ Sources
+% \bibitem{21} 
+% Eliceiri K, Rueden C (2005). {\em Tools for visualizing multidimensional images from living specimens}. Photochem Photobiol 81 (5): 1116–22. 
+
+% \bibitem{22}
+% Schneider CA, Rasband WS, Eliceiri KW (2012). {\em NIH Image to ImageJ: 25 years of image analysis}. Nat Methods 9 (7): 671–675.
+
+% %%%VIRTUAL BOX SOURCES
+% \bibitem{23}
+% VirtualBox Manual, Copyright© 1995-2014 Oracle and/or its affiliates. All rights reserved: https://www.virtualbox.org/manual/ch01.html
+
+% %%%Vagrant SOURCES
+% \bibitem{24} Vagrant Documentation, HashiCorp: https://www.vagrantup.com/about.html
+
+% %%%CONDA SOURCES
+% \bibitem{25} Conda Documentation, Continuum-Analytics: http://conda.pydata.org/ pydata.org. (Retrieved 9 April 2015)
+
+% %%%OPENCV SOURCES
+% \bibitem{26} OpenCV Documentation, OpenCV.org: http://opencv.org/about.html
 
 \end{thebibliography}
 
