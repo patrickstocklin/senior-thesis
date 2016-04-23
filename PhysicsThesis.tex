@@ -11,15 +11,15 @@
 \usepackage{indentfirst}
 
 %To Do: 
-%Spruce up Abstract, Spruce up background (what mri is, relaxation times, maybe include graphs of exponentially dependent functions)
-%Reword some of Canny Edge Detection section (use source Ed sent me), maybe include visuals of binning, gradient directions, and such
-%Add to design of system (mention synced folders briefly, and directory formats), and concentration
-%Add to Synthesis of MnCl
-%Write about Results for Edge Detection
-	%Issues: Noise and Such, maybe mention Ed's source
-%Write about Results with most optimal conc
-	%Include a sample of pure agar? See what happens!
-%Conclusion: Results Discussion, Future Applications
+%	[] Spruce up Abstract, Spruce up background (what mri is, relaxation times, maybe include graphs of exponentially dependent functions) 
+%	[] Reword some of Canny Edge Detection section (use source Ed sent me), maybe include visuals of binning, gradient directions, and such
+%	[] Add to design of system (mention synced folders briefly, and directory formats), and concentration
+%	[] Add to Synthesis of MnCl
+%	[1] Write about Results for Edge Detection
+%	[]		Issues: Noise and Such, maybe mention Ed's source
+%	[2] Write about Results with most optimal conc
+%	[] 		Include a sample of pure agar? See what happens!
+%	[3] Conclusion: Results Discussion, Future Applications
 
 \setlength\parindent{24pt}
 
@@ -470,32 +470,59 @@ Once our solution of agar was as homogeneous as possible, we then combined 5 mL 
 
 We then began to create our 50 mL vial containing layers of hardened agar mixed with contrast agents of different concentrations. The first layer at the bottom of the vial was filled with pure agar. This first layer provides the ground that the first cubette of manganese chloride will rest upon. To extract the cubette, a precision knife was used to slice the jello-like agent into many sections. Upon inspection, the cubette that was the most uniform in size and substance, meaning no bubbles, tears, or miscellaneous impurities, was selected as the candidate. The first candidate cubette of concentration 2 was placed on the level of pure agar. The space surrounding the candidate cubette was filled with pure agar and left to solidify, providing the next level for the sequential cubette to sit on. It is important to note that the surrounding agar had to provide a buffer between each cubette, so each cubette was completely submerged in surrounding agar. This process was repeated until we had selected candidate cubettes from each concentration. The remainder of the vial was filled with agar, and became ready for imaging. \\
 
-
+%Include side by side of layer by layer image
 \begin{center}
-\includegraphics[scale=0.7]{sample.png} \\
-\small{A schematic of the 50 mL vial, taken from [8]}
+\includegraphics[scale=0.4]{sample.png}
+\hspace{25mm}
+\includegraphics[scale=0.5]{5layers.jpg} \\
+\small{A schematic of the 50 mL vial [8], and a cross-sectional image of a sample}
 \end{center}
 
 \end{section}
 
 \newpage
 \begin{section}{Results}
+%Conc 1: 	T1_21 TE = 8.6984, TR = 940
+%Conc 1: 	T2_19 TE = 12, TR = 4200
+%Conc 0.1: 	T1_16 TE = 8.6984, TR = 940
+%Conc 0.1: 	T2_14 TE = 12, TR = 4200
 
-Talk about sets of samples, parameters, images (mine and ImageJ's), and why there are lack of results
+%Talk about sets of samples, parameters, images (mine and ImageJ's), and why there are lack of results
+The samples used to perform edge-detection were synthesized using the aforementioned method on the November 11th, 2015. There were only 4 concentrations of manganese chloride included in the set of weighted images (1, 0.1, 0.04, 0.004). Also included is a control pair of weighted images that displays only a slice of pure agar seen from above. All $T_1$ weighted images were taken with $T_E$ = 8.6984ms, $T_R$ = 940ms. All $T_2$ weighted images were taken with parameters $T_E$ = 12.00ms, $T_R$ = 4200ms. It is important to clarify that this batch of images does not accurately represent the intended effect of the contrast agent. Instead of all concentrations showing a brighter signal with $T_1$ and a darker signal with $T_2$, some sets show no observable contrast difference. It may also be the case that $T_2$ weighted images actually show an increased brightness, while some $T_1$ weighted images show a darker signal. Therefore, we will only use this dataset to deduce the validity of samples via Canny edge-detection. 
 
-\subsection{Affirming the validity of a sample}
+Because our only set of actual manganese chloride concentrations has been considered unfit for determining their effectiveness as $T_1$ and $T_2$ contrast agents, representative images were created using the image-editing software GIMP. Several sets of images were created to emulate the agents' intended effects. All images were created using a template to ensure uniform dimensions. Any discrepancies between $T_1$ and $T_2$ images or from one concentration to another would negatively influence the quantitative assessment of whether or not a concentration would be a suitable agent. When creating the collection of artificial images, specific gray-scale quantities were taken to ensure that some concentrations were deemed more suitable than others. The surrounding agar was always created using a grayscale value of 195, with a pixel shade of 210 applied as an airbrush to simulate noise. The airbrush was separately applied to each image to emulate the agar's response to $T_1$ and $T_2$ weighting in order to demonstrate the necessity of normalizing our cubettes' effectiveness. 
+
+For $T_1$ weighting, all cubette regions were filled with shades that were considerably brighter than the surrounding agar. $T_2$ images were filled with shades that were noticeably darker than the surrounding agar. Sets of images were constructed such that each pair varied slightly in contrast-difference. This was done by shading one or both cubette regions with slightly greater or smaller pixel-values. Cubette regions were also edited to emulate noise and agent non-uniformity.
+
+The set of agents created on April 5th, 2016 (concentrations 2, 1, 0.5, 0.2, 0.1, and 0.08) were imaged shortly after their synthesis. Because the produced images did not display any significant changes in brightness, they were ultimately discarded as a failed batch. This set of images will neither be included nor discussed. 
+
+Insert table of Image Properties and Additions at end? Along with set of all images
+
+\subsection{Determining sample "goodness" with edge-detection}
+
+A valid sample will obey the two following clauses: 
+
+\singlespacing
+\begin{enumerate}
+\item The sample's cubettes are uniform in consistency, with no noticeable impurities
+\item The sample's cubettes which are expected to show an enhanced signal do display a change in pixel-brightness
+\end{enumerate}
+\doublespacing
+
+A sample that fails to meet the above requirements can not be considered unquestionably useful. If the cubette appears non-uniform and afflicted with multiple impurities, then it cannot be determined whether or not the contrast is responsible for the change in brightness. An impurity can be a tear in the gel-cubette, a trapped air-bubble that was caught between the surrounding agar and cubette during insertion, or an unexpected suspended particle that was not intended to be included. The synthesis procedure aims to minimize the possibility for impurities: the agar is distributed as uniformly as possible to ensure no clumps of particles and the air-bubbles are removed with the use of a heat-bath. All impurities that would significantly influence the goodness of a sample are easily detected by Canny edge detection. However the difficulty lies in distinguishing anomalies from background noise. A careful application of edge-detection will determine whether or not a pair of images satisfies both conditions. 
+
+\subsubsection{Determining Optimal Thresholds}
+%Finding Optimal Thresholds: Noise, Pure Agar, Thresholds until we get no edges
+%First Requirement, Gunky T_2 image with varying thresholds vs nice T_1 image with varything thresholds
+%Second Requirement, Nice T_1 brighter image, so include them boys
+
+
 Images to Include: Edge Detections
 	-Lots of Noise (Pure Agar)
 	-T2 with lots of gunk in the middle
 		-Varying Thresholds
 	-T1 with blank cubette in the middle
 		-Varying Thresholds
-
-Talk about Edge Detection Results:
-	Thresholds that were selected and interested
-	How did it handle noisy data?
-	What do these results mean?
-	Inhomogeneity in the cubette
 
 \subsection{Determining the most optimal $Mn-Cl_2$ Concentration}
 
@@ -780,3 +807,5 @@ S. Agaian, A. Almuntashri. 2009. {\em Noise-Resilient Edge Detection Algorithm f
 
 
 \end{document}
+
+
