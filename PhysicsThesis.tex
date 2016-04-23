@@ -10,6 +10,17 @@
 \usepackage{wrapfig}
 \usepackage{indentfirst}
 
+%To Do: 
+%Spruce up Abstract, Spruce up background (what mri is, relaxation times, maybe include graphs of exponentially dependent functions)
+%Reword some of Canny Edge Detection section (use source Ed sent me), maybe include visuals of binning, gradient directions, and such
+%Add to design of system (mention synced folders briefly, and directory formats), and concentration
+%Add to Synthesis of MnCl
+%Write about Results for Edge Detection
+	%Issues: Noise and Such, maybe mention Ed's source
+%Write about Results with most optimal conc
+	%Include a sample of pure agar? See what happens!
+%Conclusion: Results Discussion, Future Applications
+
 \setlength\parindent{24pt}
 
 \doublespacing
@@ -17,7 +28,7 @@
 \begin{document}
 	\begin{center}
 	\vspace{0.5cm}
-	\huge{Applications of Image-Analysis \& Canny Edge Detection in Magnetic Resonance Imaging}\\
+	\huge{Applications of Image-Analysis \& Canny Edge Detection in Manganese-Enhanced Magnetic Resonance Imaging}\\
 	\vspace{0.5cm}
 
 	\singlespacing
@@ -49,6 +60,29 @@ Magnetic Resonance Imaging is an imaging technique used to create images from di
 
 
 \begin{section}{Background Information}
+
+%MRI INFO FROM BRADY/OXFORD SLIDES
+%T1-weighted image TR=14ms, TE = 50ms,
+%T2-weighted image TR=4000ms, TE = 100ms
+%H protons with two spin states are either precessing along or against the external magnetic field
+%Bombarded with RF energy, at certain resonant (larmor) freqs the proton flips to high energy states
+%Applying pulse at 90 degrees to the B field
+
+%Relaxation T1
+%For nuc to return to low energy states the spin system must be exposed to an EM field oscillating with a freq at or close to Larmor freq
+%This can occur by the nuc being stimulated by surrounding nuc, occurs in exponential manner
+%corresponds to the time req for the system to return to 63 percent of eq when exposed to 90 deg
+
+%Saturation Recovery of Mz back to Mo
+
+%Contribution of all spins is tipped into x,y plane, dephases in the x,y plane
+
+%Relaxation T2, 
+%immediately after pulse is applied, spins dephase and signal decreases
+%Approximately 10x smaller than T1
+
+%Maybe mention K space and FFT
+
 
 \subsection{Magnetic Resonance Imaging}
 Magnetic Resonance Imaging (MRI) is an imaging techinique used to visualize the anatomy and physiological topology of living organisms. By using powerful externally-applied magnetic fields, scientists and physicians are able to render detailed images of the human body without exposing the patient to potentially lethal forms of radiation. It is this exact reason why magnetic resonance imaging is the predominantly-favored investigative tool for detecting and battling deadly cancer cells. MRI is generally agreed upon to be superior to Computed Tomography (CT) scans for neurobiological visualization because it avoids any harmful exposure to radiation and offers a more detailed image of the grey and white matter in the central nervous system$\cite{1}$.
@@ -446,6 +480,9 @@ We then began to create our 50 mL vial containing layers of hardened agar mixed 
 
 \newpage
 \begin{section}{Results}
+
+Talk about sets of samples, parameters, images (mine and ImageJ's), and why there are lack of results
+
 \subsection{Affirming the validity of a sample}
 Images to Include: Edge Detections
 	-Lots of Noise (Pure Agar)
@@ -461,28 +498,96 @@ Talk about Edge Detection Results:
 	Inhomogeneity in the cubette
 
 \subsection{Determining the most optimal $Mn-Cl_2$ Concentration}
-\subsubsection{Method}
-Talk about how I went about solving the issue
-	Applying a Gaussian Filter/1-D convolution mask across the slices of pixels
-	Averaging slices of images
-	Calculating Area Under Curve as metric for effectiveness
-Normalizing the AUC by the agar (ways to solve this? Binning discretized values, subtracting average agar value contrast from final slice)
-Talk about how size of cubette must be uniform
+
+We are interested in determining the most optimal concentration of contrast agent. "Most optimal" would mean the concentration that would excellently produce brighter images with $T_1$-weighting and darker images with $T_2$-weighting. It has been demonstrated that some concentrations yield resulting images that are either all brighter, all darker, or display no real influence on the image's intensity. This could either have been due the contrast agent's concentration alone, or a poor choice in MRI parameters ({\em Echo-Time, Relaxation-Time, radio pulse frequency, etc.}). A concentration's efficiency for a specific set of parameters could be quantified as the difference in pixel-intensity. Greater differences in the intensity would signify an increased effectiveness for a concentration. The following sections will describe my solution to this problem, as well as its obstacles it encountered.
+
 Talk about the theoretical model of there being critical point of concentration that does not yield effective contrast
-Image Registration discussion
 
-Images to Include: Fabricated Images (lol)
-	Effect of Applying Filter to Final Slice (matplotlib figs)
-	Areas under the Curve
-		-Before Taking Contrast
-		%-Show difference in T1_T2
+\subsubsection{Assumptions \& Method}
 
+In order to approach this problem, some assumptions must be made about our images. Their resolutions will appear following the description of the solution. The assumptions are as follows:
 
+\singlespacing
+\begin{enumerate}
+\item The sample's cubettes of contrast agent are uniform in dimension
+\item The sample's cubettes' locations do not deviate from each other
+\item The sample's surrounding agar does not experience intensity-contrast
+\end{enumerate}
+\doublespacing
+
+The first assumption is critical because it directly influences the metric on which we gauge the concentration's effectiveness. If one concentration's cubette covers more of the image than another concentration's cubette, then we could incorrectly label one concentration as more or less effective than its competitors. The second assumption makes the solution possible, because feature-extraction of this nature would be impossible if images were to be misaligned in their coordinate-planes. The third assumption removes the task of normalizing the result to verify the true efficiency of our concentrations. All assumptions are discussed in further detail later.
+
+The Python file titled {\em findBestConcentration.py} in the {\em scripts} directory contains all the necessary calculations and functions to successfully determine the "most optimal" concentration given a set of $T_1$ and $T_2$ images. First, all images in the target-folder's subdirectories are loaded and paired according to their concentrations. For every pair of $T_1$ and $T_2$ images, the following is done:
+
+\singlespacing
+\begin{enumerate}
+\item Extract N-horizontal pixel vectors from the center of both images (N is user-defined)
+\item Apply a 1-D Gaussian convolution mask to further reduce noise for every pixel vector
+\item For every horizontal pixel vector find the absolute value of the difference between its corresponding "sibling" pixel and store as a vector
+\item Normalize this pixel-difference vector by removing the pixels produced by the agar's intensity contrast
+\item Treat the vector of pixel-differences as a curve and calculate the area underneath the curve
+\end{enumerate}
+
+\doublespacing
+
+The concentrations are then sorted according to their results from determining the area under their pixel-difference vector. The concentrations with the largest areas are recommended as an optimal contrast agent.
+
+\subsubsection{Issues and Solutions}
+
+As previously mentioned, the assumptions made to ensure this solution's confidence and precision were 1) the cubettes do not vary in size from one concentration to another, 2) the cubettes do not appear to move from image to image, and 3) the pure agar does not experience notable intensity-change. Their influence on the above approach for determining the best concentration levels will now be discussed, along with possible solutions.
+
+The first assumption was installed to remove the bias some concentrations would create when calculating the area under the curve. For larger cubettes of contrast agent, more area would lie underneath the pixel-difference curve and would thus yield a deceptively larger or smaller area. This augmented area would misrepresent the concentration's effectiveness, so the assumption is made that all cubettes are uniform. One potential approach to overcome this obstacle would be to standardize the region under which we calculate our area/efficiency. An application of 1-Dimensional Canny edge detection would be used to determine the locations along the pixel-difference vectors where intensity-transition is highest. These locations would represent where the pure agar turns into brighter or darker regions containing contrast agents. The boundaries surrounding the smallest regions would then be applied to all concentrations to ensure the areas under the curves would be taken over a uniform range. This would then represent a more realistic efficiency-score for our concentrations.
+
+The second assumption was created to remove the necessity for image-registration. If two cubettes of the same concentration were slightly misaligned, then the calculated efficiency would not be an accurate representation. If it is assumed that the camera and/or sample does not move between $T_1$ and $T_2$ images, then it is no longer necessary to align the images. To resolve this issue, all pairs of images would be registered with respect to each other features and origins.
+
+The third assumption requires the algorithm to account for unexpected brightness-contrast for the surrounding agar. If for one concentration the agar had produced varying intensities, this would leave our concentrations' true efficiencies unnormalized. Because the surrounding agar is not uniform in brightness, this begs the question: How do we know what values to reduce our pixel-difference vector by? One approach may be to discretize and bin pixels outside the region of highest pixel-contrast and then reduce their influence on the cubette's pixel-contrast. This would result in a much more accurate and representative efficiency score for a given concentration. 
+
+\subsubsection{Results}
+
+Because of the lack of sample sets with desirable characteristics (brighter image in $T_1$, darker image in $T_2$), the aforementioned algorithm was preformed on several sets of artificial, but representative sample-images created in GIMP. Some of the images can be seen below:
+
+\begin{center}
+\includegraphics[scale=0.25]{T1.jpg}
+\includegraphics[scale=0.25]{T2.jpg}
+\includegraphics[scale=0.25]{T1*.png}
+\includegraphics[scale=0.25]{T2*.png}
+\end{center}
+\begin{center}
+\small{Two test sets of $T_1$ and $T_2$ images, (Set No. 2 $T_1$ and $T_2$, Set No. 3 $T_1$ and $T_2$)}
+\end{center}
+
+Line graphs representing the pixel-intensities for ideal $T_1$ and $T_2$ images were taken during testing and may be found below:
+
+\begin{center}
+\includegraphics[scale=0.35]{SingleSlice_Test3_T1.png}
+\includegraphics[scale=0.35]{SingleSlice_Test3_T2.png}
+\end{center}
+
+Both slices of pixel-values were taken laterally along the middle of the image and interesect the regions of enhanced and reduced brightness. Both graphs belong to test set 3, as seen above. It is important to note that the surrounding agar does noticeably vary from $T_1$ to $T_2$, and was done so to demonstrate the necessity for normalizing the efficiency.\\
+
+For smoothing the horizontal slices of pixels, a 1-D Gaussian Filter was selected with size 5 and $\sigma = 1.4$:
+
+\begin{center}
+$G_F = \frac{1}{159}
+\begin{matrix}
+[ 5 & 12 & 15 & 12 & 5 ]
+\end{matrix}$
+\end{center}
+	
+Once applied, the final pixel-difference vector represented by a line graph appeared like so:
+
+\begin{center}
+\includegraphics[scale=0.6]{Unnormalized_GF_Test3.png}
+\end{center}
+
+It is easy to see that because we left the vector unnormalized, regions of surrounding pure agar still influence the area underneath the curve. This demonstrates the necessity for determining the contribution to the efficiency-score made by the slight contrast in the agar. It is easy to see how a 1-Dimensional application of Canny edge detection would yield a position-approximation for region boundaries. Because the intensity-gradient changes so dramatically around the region of transition, there would be no difficulty in isolating the region of agar from the cubette.
 
 \end{section}
 
 \newpage
-\begin{section}{Conclusion and Discussion}
+\begin{section}{Conclusion}
+\subsection{Results and Discussion}
+
 \subsection{Future Applications}
 
 Talk about collaboration on system
@@ -675,5 +780,3 @@ S. Agaian, A. Almuntashri. 2009. {\em Noise-Resilient Edge Detection Algorithm f
 
 
 \end{document}
-
-
