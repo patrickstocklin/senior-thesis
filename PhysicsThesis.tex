@@ -486,6 +486,7 @@ We then began to create our 50 mL vial containing layers of hardened agar mixed 
 %Conc 1: 	T2_19 TE = 12, TR = 4200
 %Conc 0.1: 	T1_16 TE = 8.6984, TR = 940
 %Conc 0.1: 	T2_14 TE = 12, TR = 4200
+\subsection{Image-Sets}
 
 %Talk about sets of samples, parameters, images (mine and ImageJ's), and why there are lack of results
 The samples used to perform edge-detection were synthesized using the aforementioned method on the November 11th, 2015. There were only 4 concentrations of manganese chloride included in the set of weighted images (1, 0.1, 0.04, 0.004). Also included is a control pair of weighted images that displays only a slice of pure agar seen from above. All $T_1$ weighted images were taken with $T_E$ = 8.6984ms, $T_R$ = 940ms. All $T_2$ weighted images were taken with parameters $T_E$ = 12.00ms, $T_R$ = 4200ms. It is important to clarify that this batch of images does not accurately represent the intended effect of the contrast agent. Instead of all concentrations showing a brighter signal with $T_1$ and a darker signal with $T_2$, some sets show no observable contrast difference. It may also be the case that $T_2$ weighted images actually show an increased brightness, while some $T_1$ weighted images show a darker signal. Therefore, we will only use this dataset to deduce the validity of samples via Canny edge-detection. 
@@ -504,25 +505,74 @@ A valid sample will obey the two following clauses:
 
 \singlespacing
 \begin{enumerate}
-\item The sample's cubettes are uniform in consistency, with no noticeable impurities
-\item The sample's cubettes which are expected to show an enhanced signal do display a change in pixel-brightness
+\item The sample's cubettes are uniform in consistency and contain no definitive impurities
+\item The sample's cubettes expected to show an enhanced signal do exhibit a change in pixel-brightness
 \end{enumerate}
 \doublespacing
 
 A sample that fails to meet the above requirements can not be considered unquestionably useful. If the cubette appears non-uniform and afflicted with multiple impurities, then it cannot be determined whether or not the contrast is responsible for the change in brightness. An impurity can be a tear in the gel-cubette, a trapped air-bubble that was caught between the surrounding agar and cubette during insertion, or an unexpected suspended particle that was not intended to be included. The synthesis procedure aims to minimize the possibility for impurities: the agar is distributed as uniformly as possible to ensure no clumps of particles and the air-bubbles are removed with the use of a heat-bath. All impurities that would significantly influence the goodness of a sample are easily detected by Canny edge detection. However the difficulty lies in distinguishing anomalies from background noise. A careful application of edge-detection will determine whether or not a pair of images satisfies both conditions. 
 
-\subsubsection{Determining Optimal Thresholds}
-%Finding Optimal Thresholds: Noise, Pure Agar, Thresholds until we get no edges
-%First Requirement, Gunky T_2 image with varying thresholds vs nice T_1 image with varything thresholds
-%Second Requirement, Nice T_1 brighter image, so include them boys
+\subsubsection{Determining Optimal Thresholds} %Use Regression To Self-Balance Thresholds (talk in conclusion)
 
+The first obstacle to hurdle when applying Canny edge-detection to a sample's set of images is to find a pair of lower-bound and upper-bound thresholds that simultaneously extract the more interesting features and remove unnecessary image-noise.  If thresholds are set too low, edge-detection will incorrectly label many pixel-gradients as possible strong or weak edges. On the other end of the spectrum, thresholds set too high will remove all interesting features of our image. This was done by inspecting multiple edge-images with varying thresholds until a desirable image was created. This was first applied to images of pure agar to find the right parameters to filter out edges generated in regions absent of features.
 
-Images to Include: Edge Detections
-	-Lots of Noise (Pure Agar)
-	-T2 with lots of gunk in the middle
-		-Varying Thresholds
-	-T1 with blank cubette in the middle
-		-Varying Thresholds
+\begin{center} \underline{Edge-Detection of Pure Agar ($T_2$ weighted)} \end{center}
+\begin{flushleft}
+\includegraphics[scale=0.3]{pure_agar_T2.jpg}				\hspace{2cm}$T_2$ weighted image with no detection
+\includegraphics[scale=0.3]{noisy_pure_agar_(60,80).jpg}	\hspace{2cm}With $T_L$ = 60, $T_H$ = 80
+\includegraphics[scale=0.3]{pure_agar_(90,115).jpg}			\hspace{2cm}With $T_L$ = 90, $T_H$ = 115
+\end{flushleft}
+
+The above images illustrate the influence the thresholds have over the edge-detection output. By inspection, one can see there is nothing of interest inside the sample. By setting our hysteresis thresholds too low ($T_L$ = 60, $T_H$ = 80), we generate a lot of false edges as seen in the second image. Only until we raise the thresholds to $T_L$ = 90 and $T_H$ = 115 do we remove lots of unwanted noise. It was then decided that thresholds $T_L$, $T_H$ from between 70 and 120 would produce desirable outputs. All of the edge-images in the following sections will have been produced from thresholds falling between this fair range.
+
+\subsubsection{Satisfying Cubette Uniformity}
+
+Now that an acceptable range of thresholds has been discovered, edge-detection is applied to determine the uniformity of cubettes. By observing the rendered features and edges of the algorithm's output, the researcher can determine the severity of the imperfections or anomalies. Two $T_2$-weighted images, one with an agent concentration of 0.004 and the other with 0.04, have been selected to demonstrate this exercise. It is important to note that the $T_2$ image for concentration 0.04 actually shows a brighter signal, instead of a desired darker image. Regardless the characteristics of the cubette-region are well-suited for this demonstration. The images may be found below:
+
+\begin{center}
+\includegraphics[scale=0.4]{13_1.jpg}
+\includegraphics[scale=0.4]{19_1.jpg}\\
+\small{Left: $T_2$ image of conc. 0.004, Right: $T_2$ image of conc. 0.04}
+\end{center}
+
+It is obvious to the viewer that both images contain cubettes that aren't completely homogeneous. In hopes of detecting the impurities in the cubettes, a round of edge-detection is performed. Below is a subset of the produced images:
+
+\begin{center}
+\includegraphics[scale=0.4]{edge(60,90)13_1.jpg}
+\includegraphics[scale=0.4]{edge(60,90)19_1.jpg}\\
+\includegraphics[scale=0.4]{edge(60,115)13_1.jpg}
+\includegraphics[scale=0.4]{edge(60,115)19_1.jpg}\\
+\small{Top Row: $T_L$ = 60, $T_H$ = 90} \hspace{1mm} \small{Bottom Row: $T_L$ = 60, $T_H$ = 115}
+\end{center}
+
+In all four edge-images, the cubette and its anomalies were detected and labeled as regions of significant intensity-change. For concentration 0.004, the anomalies may be defined as the rapidly varying ares of light and dark pixels. With respect to the image for sample-concentration 0.04, the single dark speck on the border of the cubette may be labeled as an impurity. By increasing the upper threshold from 90 to 115, the number of strong edge-pixels was reduced and the amount of noise surrounding the cubette diminished. Despite this increase of the upper threshold, the impurities were still detected and rendered. Thus it is safe to say that the bottom row's edges contained within the cubette's boundaries represent abnormalcies that are prominent enough to warrant the samples as non-homogeneous. The degree of non-uniformity to which we may characterize the sample with concentration 0.004 is much larger than that of the sample with concentration 0.04. This may be verified by comparing the number of pixels and edges between concentrations 0.004 and 0.04.
+
+So it has been illustrated how edge-detection can be applied to detect cubette-anomalies and label samples imperfect. In order to demonstrate how homogeneous and uniform a cubette can appear, another iteration of edge-detection has been applied to a $T_1$-weighted image. The original and processed images may be found below:
+
+\begin{center}
+\includegraphics[scale=0.4]{20_2.jpg}
+\includegraphics[scale=0.4]{edge(60,85)20_2.jpg}\\
+\small{Left: $T_1$ image of conc. 0.1} \hspace{13mm} \small{Right: $T_L$ = 60, $T_H$ = 85}
+\end{center}
+
+What is most surprising about the above images is that the cubette was so homogeneous and uniform that the surrounding region of pure agar produced more edges than the contrast agent. In order to affirm a cubette's uniformity, the region confined within the cubette's boundaries must be nearly void of any detected edges. It is not required for the cubette to "outperform" its surrounding region of agar, but doing so certainly supports how pure and anomaly-free the cubette may be.
+
+\subsubsection{Detecting Well-Defined Cubette Boundaries}
+
+Due to the likelihood that a $T_1$ or $T_2$-weighted image won't automatically produce a brighter or darker signal, it is imperative to verify that the sample's concentrations that ought to produce an image contrast do so. This can be done by inspecting the edge-detection's produced images. The contiguity of the cubette's boundaries and their resilience to an increase in hysteresis-thresholds will determine how well the cubette is defined. To demonstrate how the boundaries of one concentration's cubette may differ from other concentrations' cubette's, four edge-images that were previously introduced are collected on the following page:
+
+\newpage
+\begin{center} \underline{Locating the Cubette with Edge-Detection} \end{center}
+\begin{flushleft}
+\includegraphics[scale=0.26]{pure_agar_(90,115).jpg}		\hspace{0.5cm}\small{Pure Agar $T_2$ ($T_L$:90,$T_H$:115): No Boundaries}
+\includegraphics[scale=0.26]{edge(60,115)19_1.jpg}			\hspace{0.5cm}\small{Conc. 0.04 $T_2$ ($T_L$:60,$T_H$:115): Sparse Boundaries}
+\includegraphics[scale=0.26]{edge(60,115)13_1.jpg}			\hspace{0.5cm}\small{Conc. 0.004 $T_2$ ($T_L$:60,$T_H$:115): Well-Defined Boundaries}
+\includegraphics[scale=0.26]{edge(60,85)20_2.jpg}			\hspace{0.5cm}\small{Conc. 0.1 $T_1$ ($T_L$:60,$T_H$:85): Well-Defined Boundaries}
+\end{flushleft}
+
+The first image consists of only the circumference of the sample's container. Therefore there should be no other detected edges in the produced image. The edge-image derived from the $T_2$-weighted sample with concentration 0.04 shows a final object that is sparsely connected: sides of the cubette do not converge at their supposed vertices. The $T_2$-weighted image of concentration 0.004 shows a considerably more well-connected perimeter. The $T_1$-weighted image of concentration 0.1 also shows a well-defined perimeter, but not to the extent of the third image. Despite the fact that the third image's cubette includes many impurities while the fourth's does not, both images satisfy the condition that their cubette's produce a contrast in image-brightness. Meeting this requirement solely depends upon the perimeter generated by edge-detection.
+
+Determining the resilience of the cubette's boundaries may be calculated by taking a quantitative metric (pixel-count, or edge-length) for many iterations of edge-detection with incrementing thresholds. The stronger the contrast in brightness due to the contrast agent, the longer the cubette's edges will survive as the thresholds are raised. Plotting a count of white-pixels in the edge-image versus the values of the algorithm's thresholds could reveal something about the resilience of the cubette's edges. 
 
 \subsection{Determining the most optimal $Mn-Cl_2$ Concentration}
 
@@ -613,7 +663,7 @@ It is easy to see that because we left the vector unnormalized, regions of surro
 
 \newpage
 \begin{section}{Conclusion}
-\subsection{Results and Discussion}
+\subsection{Discussion of Results}
 
 \subsection{Future Applications}
 
